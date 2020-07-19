@@ -13,17 +13,15 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener, DatePickerFragment.DialogDateListener, TimePickerFragment.DialogTimeListener{
-    TextView tvOnceDate, tvOnceTime;
-    EditText edtOnceMessage;
-    ImageButton btnOnceDate, btnOnceTime;
-    Button btnSetOnce;
-
-    private AlarmReceiver alarmReceiver;
-
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, DatePickerFragment.DialogDateListener, TimePickerFragment.DialogTimeListener {
     final String DATE_PICKER_TAG = "DatePicker";
     final String TIME_PICKER_ONCE_TAG = "TimePickerOnce";
     final String TIME_PICKER_REPEAT_TAG = "TimePickerRepeat";
+    TextView tvOnceDate, tvOnceTime, tvRepeatingTime;
+    EditText edtOnceMessage, edtRepeatingMessage;
+    ImageButton btnOnceDate, btnOnceTime, btnRepeatingTime;
+    Button btnSetOnce, btnSetRepeating, btnCancelRepeating;
+    private AlarmReceiver alarmReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,20 +30,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         tvOnceDate = findViewById(R.id.tv_once_date);
         tvOnceTime = findViewById(R.id.tv_once_time);
+        tvRepeatingTime = findViewById(R.id.tv_repeating_time);
         edtOnceMessage = findViewById(R.id.edt_once_message);
+        edtRepeatingMessage = findViewById(R.id.edt_repeating_message);
         btnOnceDate = findViewById(R.id.btn_once_date);
         btnOnceDate.setOnClickListener(this);
         btnOnceTime = findViewById(R.id.btn_once_time);
         btnOnceTime.setOnClickListener(this);
         btnSetOnce = findViewById(R.id.btn_set_once_alarm);
         btnSetOnce.setOnClickListener(this);
+        btnRepeatingTime = findViewById(R.id.btn_repeating_time);
+        btnRepeatingTime.setOnClickListener(this);
+        btnSetRepeating = findViewById(R.id.btn_set_repeating_alarm);
+        btnSetRepeating.setOnClickListener(this);
+        btnCancelRepeating = findViewById(R.id.btn_cancel_repeating_alarm);
+        btnCancelRepeating.setOnClickListener(this);
 
         alarmReceiver = new AlarmReceiver();
     }
 
     @Override
     public void onClick(View view) {
-        switch (view.getId()){
+        switch (view.getId()) {
             case R.id.btn_once_date:
                 DatePickerFragment datePickerFragment = new DatePickerFragment();
                 datePickerFragment.show(getSupportFragmentManager(), DATE_PICKER_TAG);
@@ -62,6 +68,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         onceDate,
                         onceTime,
                         onceMessage);
+                break;
+            case R.id.btn_repeating_time:
+                TimePickerFragment timePickerFragmentRepeat = new TimePickerFragment();
+                timePickerFragmentRepeat.show(getSupportFragmentManager(), TIME_PICKER_REPEAT_TAG);
+                break;
+            case R.id.btn_set_repeating_alarm:
+                String repeatTime = tvRepeatingTime.getText().toString();
+                String repeatMessage = edtRepeatingMessage.getText().toString();
+                alarmReceiver.setRepeatingAlarm(this, AlarmReceiver.TYPE_REPEATING,
+                        repeatTime, repeatMessage);
+                break;
+            case R.id.btn_cancel_repeating_alarm:
+                alarmReceiver.cancelAlarm(this, AlarmReceiver.TYPE_REPEATING);
                 break;
         }
     }
@@ -81,6 +100,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (tag) {
             case TIME_PICKER_ONCE_TAG:
                 tvOnceTime.setText(dateFormat.format(calendar.getTime()));
+                break;
+            case TIME_PICKER_REPEAT_TAG:
+                tvRepeatingTime.setText(dateFormat.format(calendar.getTime()));
                 break;
             default:
                 break;
